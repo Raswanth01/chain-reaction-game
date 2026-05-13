@@ -15,7 +15,8 @@ const gameState = {
     sounds: {
         place: new Audio('assets/place.wav'),
         explode: new Audio('assets/pop.wav'),
-        win: new Audio('assets/win.wav')
+        win: new Audio('assets/win.wav'),
+        portal: new Audio('assets/portal.wav')
     },
     firstMove: { player1: true, player2: true },
     portals: [] 
@@ -24,6 +25,7 @@ const gameState = {
 gameState.bgm.loop = true;      // Makes the music restart automatically
 gameState.bgm.volume = 0.5;    // Lower volume (30%) so SFX can be heard
 gameState.sounds.win.volume = 0.6;
+gameState.sounds.portal.volume = 1.5;
 // Initialize the data for a 6x12 board
 function initializeBoardData() {
     for (let r = 0; r < 12; r++) {

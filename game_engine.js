@@ -23,6 +23,12 @@ function resetGame() {
     gameState.activeAnimations = 0;
     gameState.firstMove = { player1: true, player2: true };
     gameState.scores = { player1: 0, player2: 0 };
+
+    if (gameState.currentMode === 'hacker') {
+        generateRandomPortals(); 
+    } else {
+        gameState.portals = [];
+    }
     
     initializeBoardData();
     updateVisuals();
@@ -51,10 +57,30 @@ function exitToMenu() {
 
 function generateRandomPortals() {
     const rand = (max) => Math.floor(Math.random() * max);
-    let p1 = { r: rand(12), c: rand(6) };
-    let p2 = { r: rand(12), c: rand(6) };
-    while (p1.r === p2.r && p1.c === p2.c) p2 = { r: rand(12), c: rand(6) };
-    gameState.portals = [{ entry: p1, exit: p2 }, { entry: p2, exit: p1 }];
+    const getUniquePos = (existing) => {
+        let pos;
+        do {
+            pos = { r: rand(12), c: rand(6) };
+        } while (existing.some(p => p.r === pos.r && p.c === pos.c));
+        return pos;
+    };
+
+    let used = [];
+    
+    // Pair 1 (Set A)
+    const a1 = getUniquePos(used); used.push(a1);
+    const a2 = getUniquePos(used); used.push(a2);
+    
+    // Pair 2 (Set B)
+    const b1 = getUniquePos(used); used.push(b1);
+    const b2 = getUniquePos(used); used.push(b2);
+
+    gameState.portals = [
+        { entry: a1, exit: a2, type: 'a' },
+        { entry: a2, exit: a1, type: 'a' },
+        { entry: b1, exit: b2, type: 'b' },
+        { entry: b2, exit: b1, type: 'b' }
+    ];
 }
 
 function handleMove(r, c) {
@@ -108,12 +134,20 @@ async function explode(r, c, attacker) {
             let tr = nr, tc = nc;
             
             // Portal Logic
+            const entryCell = document.getElementById(`cell-${nr}-${nc}`); // The square the dot hits first
             const portal = gameState.portals.find(p => p.entry.r === nr && p.entry.c === nc);
-            if (portal) { tr = portal.exit.r; tc = portal.exit.c; }
+            let portalExitcell = null;
+
+            if (portal) {
+                tr = portal.exit.r;
+                tc = portal.exit.c;
+                portalExitcell = document.getElementById(`cell-${tr}-${tc}`);
+            }
 
             const targetCell = document.getElementById(`cell-${tr}-${tc}`);
             gameState.activeAnimations++;
-            createFlyingDot(originCell, targetCell, attacker);
+            createFlyingDot(originCell, entryCell, attacker, !!portal, portalExitcell);
+
 
             setTimeout(() => {
                 if (gameState.isGameOver) return;
@@ -187,24 +221,67 @@ function startTimers() {
     }, 1000);
 }
 
-function createFlyingDot(fromEl, toEl, player) {
+
+function createFlyingDot(fromEl, toEl, player, portalExitEl = null) {
     const dot = document.createElement('div');
     dot.className = `ghost-dot ${player === 1 ? 'p1-dot' : 'p2-dot'}`;
-    const start = fromEl.getBoundingClientRect();
-    const end = toEl.getBoundingClientRect();
+    
+    const getPos = (el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    };
 
-    dot.style.left = `${start.left + start.width/2}px`;
-    dot.style.top = `${start.top + start.height/2}px`;
+    const start = getPos(fromEl);
+    const target = getPos(toEl);
+
+    // FIX: Add a very high zIndex directly here to be safe
+    Object.assign(dot.style, { 
+        left: `${start.x}px`, 
+        top: `${start.y}px`,
+        position: 'fixed',
+        zIndex: '10000' 
+    });
+    
     document.body.appendChild(dot);
 
     requestAnimationFrame(() => {
+        // Use a tiny delay to ensure the browser registers the starting position
         setTimeout(() => {
-            dot.style.left = `${end.left + end.width/2}px`;
-            dot.style.top = `${end.top + end.height/2}px`;
-        }, 10);
+            dot.style.transition = portalExitEl ? "all 0.15s ease-in" : "all 0.3s linear";
+            dot.style.left = `${target.x}px`;
+            dot.style.top = `${target.y}px`;
+
+            if (portalExitEl) {
+                // We change opacity, but keep the scale slightly visible (0.1) 
+                // until the exact moment of the warp to prevent it "dropping" under
+                dot.style.opacity = "0";
+                dot.style.transform = "translate(-50%, -50%) scale(0.1)";
+            }
+        }, 5);
     });
 
-    setTimeout(() => { if (dot.parentNode) dot.remove(); }, 350);
+    if (portalExitEl) {
+        if (gameState.sounds.portal) {
+            gameState.sounds.portal.currentTime = 0;
+            gameState.sounds.portal.play().catch(() => {});
+        }
+        setTimeout(() => {
+            const exit = getPos(portalExitEl);
+            dot.style.transition = "none";
+            dot.style.left = `${exit.x}px`;
+            dot.style.top = `${exit.y}px`;
+            
+            // Re-apply the scale(0) before starting the exit animation
+            dot.style.transform = "translate(-50%, -50%) scale(0)";
+            
+            // Force a reflow so the 'none' transition is respected
+            dot.offsetHeight; 
+
+            dot.classList.add('portal-exit-anim');
+        }, 160);
+    }
+
+    setTimeout(() => dot.remove(), 300);
 }
 
 function endGame(msg) {

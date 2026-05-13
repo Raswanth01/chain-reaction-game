@@ -37,8 +37,10 @@ function updateVisuals() {
 
             // 3. Re-apply Portal Glow if in Hacker Mode
             if (gameState.currentMode === 'hacker' && gameState.portals) {
-                const isPortal = gameState.portals.find(p => p.entry.r === r && p.entry.c === c);
-                if (isPortal) cell.classList.add('portal-cell');
+                const portal = gameState.portals.find(p => p.entry.r === r && p.entry.c === c);
+                if (portal) {
+                    cell.classList.add(portal.type === 'a' ? 'portal-a' : 'portal-b');
+                }
             }
 
             // 4. Draw Dots
