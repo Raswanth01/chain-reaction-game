@@ -1,21 +1,24 @@
 // This object will hold all the current info about the game
 const gameState = {
-    board: [], // This will be a list of every cell's count and owner
+    board: [],
     currentPlayer: 1,
+    currentMode: 'normal',
     scores: { player1: 0, player2: 0 },
-    isPaused: false,
+    isPaused: true,
+    gameStarted: false,
     isGameOver: false,
-    totalTime: 180, // Total time in seconds (5 minutes)
+    totalTime: 180, 
     turnTime: 15,
     timerInterval: null,
-    activeAnimations: 0, // This will hold references to any active animation timeouts
+    activeAnimations: 0,
     bgm: new Audio('assets/BGM.wav'),
     sounds: {
         place: new Audio('assets/place.wav'),
         explode: new Audio('assets/pop.wav'),
         win: new Audio('assets/win.wav')
     },
-    firstMove: {player1: true, player2: true} // Track if it's the player's first move
+    firstMove: { player1: true, player2: true },
+    portals: [] 
 };
 // Configure the BGM
 gameState.bgm.loop = true;      // Makes the music restart automatically

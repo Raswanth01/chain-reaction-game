@@ -1,108 +1,226 @@
-/* 1. RESET & BASE */
+/* --- 1. GLOBAL SETTINGS --- */
+:root {
+    --neon-cyan: #00ffcc;
+    --neon-purple: #bc13fe;
+    --bg-dark: #0a0a0a;
+    --panel-bg: #1a1a1a;
+    --p1-color: #ff4d4d;
+    --p2-color: #4d94ff;
+}
+
 body {
-    background-color: #0a0a0a;
-    color: #00ffcc;
+    background-color: var(--bg-dark);
+    color: var(--neon-cyan);
     font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevents mobile 'bounce' scrolling */
+    touch-action: manipulation; /* Optimizes for fast tapping */
+}
+
+/* --- 2. SCREEN & MENU ARCHITECTURE --- */
+.screen {
+    width: 100vw;
+    height: 100dvh; 
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* Use min-height instead of height to allow scrolling if needed */
-    min-height: 100vh; 
-    margin: 0;
-    /* Prevent the bounce effect on mobile */
-    overscroll-behavior: none;
+    transition: opacity 0.4s ease-in-out;
 }
 
-/* 2. THE WRAPPER */
+.hidden {
+    display: none !important;
+}
+
+.neon-title {
+    font-size: clamp(2rem, 10vw, 4rem);
+    color: var(--neon-cyan);
+    text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.menu-box {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-btn {
+    width: min(80vw, 300px);
+    padding: 18px;
+    background: transparent;
+    border: 2px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    font-family: inherit;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.menu-btn:hover {
+    background: var(--neon-cyan);
+    color: var(--bg-dark);
+    box-shadow: 0 0 20px var(--neon-cyan);
+    transform: translateY(-2px);
+}
+
+.hacker-btn {
+    border-color: var(--neon-purple);
+    color: var(--neon-purple);
+}
+
+.hacker-btn:hover {
+    background: var(--neon-purple);
+    box-shadow: 0 0 20px var(--neon-purple);
+}
+
+/* --- 3. GAME INTERFACE (HEADER & CONTROLS) --- */
 #game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    padding: 10px 0;
 }
 
-/* 3. THE GRID (THE MAGIC IS HERE) */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    max-width: 600px;
+    padding: 10px;
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+}
+
+#back-to-menu {
+    background: #222;
+    border: 1px solid #444;
+    color: #888;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    border-radius: 4px;
+}
+
+#controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+}
+
+#pause-btn, #reset-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+}
+
+#pause-btn:hover, #reset-btn:hover {
+    background: var(--neon-cyan);
+    color: #000;
+}
+
+/* --- 4. THE PLAYABLE GRID --- */
 #grid {
     display: grid;
-    /* Each cell is calculated to fit width-wise, but capped so it doesn't overflow height-wise */
-    /* 14vw is good for width, but 6vh ensures it fits on short screens */
-    grid-template-columns: repeat(6, clamp(40px, 12vw, 6vh)); 
-    grid-template-rows: repeat(12, clamp(40px, 12vw, 6vh));
-    
+    /* 42px is the minimum size to ensure playability on small screens */
+    grid-template-columns: repeat(6, clamp(42px, 12vw, 6.2vh));
+    grid-template-rows: repeat(12, clamp(42px, 12vw, 6.2vh));
     gap: 4px;
-    border: 2px solid #00ffcc;
+    border: 2px solid var(--neon-cyan);
     padding: 8px;
-    background: #1a1a1a;
-    box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
-    margin-top: 10px;
+    background: var(--panel-bg);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    margin: 0 auto;
 }
 
-/* 4. THE CELLS */
 .cell {
     width: 100%;
     height: 100%;
     border: 1px solid #333;
+    background: #222;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
-    transition: background 0.3s;
-    overflow: visible !important;
-    position: relative;
-    background: #222;
+    overflow: visible; /* Required for ball translations */
 }
 
-.cell:hover {
-    background-color: #282828;
-}
-
-/* 5. THE DOTS */
+/* --- 5. THE BALLS (DOTS) --- */
 .dot {
-    width: 40%; /* Slightly larger for better visibility */
+    width: 40%; /* Exactly 40% as requested */
     height: 40%;
     border-radius: 50%;
     position: absolute;
     border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    transition: all 0.2s ease-out;
-    z-index: 1;
+    /* Cubic-bezier provides the 'pop' effect on landing */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 2;
 }
 
-/* Positioning Math */
-.dot-1-of-1 { transform: translate(0, 0); }
-.dot-1-of-2 { transform: translate(-15%, 0); }
-.dot-2-of-2 { transform: translate(15%, 0); }
-.dot-1-of-3 { transform: translate(0, -18%); }
-.dot-2-of-3 { transform: translate(-20%, 15%); }
-.dot-3-of-3 { transform: translate(20%, 15%); }
+.p1-dot { 
+    background: radial-gradient(circle at 30% 30%, var(--p1-color), #800000); 
+    box-shadow: 0 0 8px var(--p1-color);
+}
+.p2-dot { 
+    background: radial-gradient(circle at 30% 30%, var(--p2-color), #002b80); 
+    box-shadow: 0 0 8px var(--p2-color);
+}
 
-/* 6. COLORS */
-.p1-dot { background: radial-gradient(circle at 30% 30%, #ff4d4d, #800000); }
-.p2-dot { background: radial-gradient(circle at 30% 30%, #4d94ff, #002b80); }
+/* --- 6. BALL POSITIONING SYSTEM --- */
+.dot-1-of-1 { transform: scale(1); }
 
-/* 7. THE ANIMATION DOT */
+.dot-1-of-2 { transform: translate(-22%, 0); }
+.dot-2-of-2 { transform: translate(22%, 0); }
+
+.dot-1-of-3 { transform: translate(0, -22%); }
+.dot-2-of-3 { transform: translate(-24%, 20%); }
+.dot-3-of-3 { transform: translate(24%, 20%); }
+
+/* --- 7. ANIMATIONS & HACKER EFFECTS --- */
 .ghost-dot {
-    /* This uses the same clamp logic as the cells * 0.45 to match size exactly */
-    width: calc(clamp(40px, 12vw, 6vh) * 0.40);
-    height: calc(clamp(40px, 12vw, 6vh) * 0.40);
-    
+    position: fixed; 
+    width: 18px; 
+    height: 18px;
     border-radius: 50%;
-    position: fixed;
-    z-index: 1000 !important;
     pointer-events: none;
-    transition: left 0.3s cubic-bezier(0.24, 0, 0.35, 1), 
-                top 0.3s cubic-bezier(0.24, 0, 0.35, 1);
+    z-index: 100;
+    /* Centers the ghost dot so it launches from the true center of the square */
+    transform: translate(-50%, -50%); 
+    transition: all 0.3s linear;
 }
 
-/* 8. UI ELEMENTS (TIMERS/SCORES) */
-.stats-bar {
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    text-shadow: 0 0 5px #00ffcc;
+.portal-cell {
+    border: 2px solid var(--neon-purple) !important;
+    box-shadow: inset 0 0 10px var(--neon-purple) !important;
+    animation: portalPulse 1.5s infinite ease-in-out alternate;
+}
+
+@keyframes portalPulse {
+    from { opacity: 0.7; filter: brightness(1); }
+    to { opacity: 1; filter: brightness(1.4); box-shadow: inset 0 0 20px var(--neon-purple); }
+}
+
+/* --- 8. MOBILE OPTIMIZATION --- */
+@media (max-width: 400px) {
+    header {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    #score-board {
+        width: 100%;
+        text-align: center;
+        margin-top: 5px;
+    }
 }

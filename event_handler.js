@@ -1,74 +1,99 @@
-// 1. Find all the squares we just created
-const cells = document.querySelectorAll('.cell');
+document.addEventListener('DOMContentLoaded', () => {
 
-// 2. Attach a "Listener" to every single square
-cells.forEach(cell => {
-    cell.addEventListener('click', () => {
-        if (!gameState.isPaused) {
-        // This code runs every time a square is clicked
-        
-        // Extract the row and column from the ID (e.g., "cell-2-3")
+    // --- THE AUDIO UNLOCKER ---
+    const unlockAudio = () => {
+        if (gameState.bgm.paused) {
+            gameState.bgm.play()
+                .then(() => {
+                    console.log("BGM Started successfully");
+                    // Once playing, remove these listeners so they don't keep firing
+                    document.removeEventListener('mousedown', unlockAudio);
+                    document.removeEventListener('touchstart', unlockAudio);
+                })
+                .catch(e => console.log("Audio still blocked:", e));
+        }
+    };
+
+    // Listen for any interaction anywhere on the page
+    document.addEventListener('mousedown', unlockAudio);
+    document.addEventListener('touchstart', unlockAudio); // For mobile taps
+    
+
+    // --- 1. MAIN MENU NAVIGATION ---
+    const normalBtn = document.querySelector('.menu-btn:not(.hacker-btn)');
+    if (normalBtn) {
+        normalBtn.onclick = () => {
+            unlockAudio(); // Important for mobile browsers
+            startGame('normal');
+        };
+    }
+
+    const hackerBtn = document.querySelector('.hacker-btn');
+    if (hackerBtn) {
+        hackerBtn.onclick = () => {
+            unlockAudio();
+            startGame('hacker');
+        };
+    }
+
+    const backBtn = document.getElementById('back-to-menu');
+    if (backBtn) {
+        backBtn.onclick = () => {
+            if (confirm("Exit to menu? Scores will be saved but board cleared.")) {
+                exitToMenu();
+            }
+        };
+    }
+
+    // --- 2. THE CLICK FIX (GLOBAL DELEGATION) ---
+    // Instead of grabbing '#grid' specifically, we listen to the whole body.
+    // This is the most reliable way to ensure clicks are never "lost".
+    document.body.addEventListener('click', (e) => {
+        // 1. Check if the click was on a cell or inside a cell
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+
+        // 2. Safety checks
+        if (!gameState.gameStarted || gameState.isPaused || gameState.activeAnimations > 0) {
+            return;
+        }
+
+        // 3. Extract coordinates
         const parts = cell.id.split('-');
         const r = parseInt(parts[1]);
         const c = parseInt(parts[2]);
-        unlockAudio();
 
-        console.log(`You clicked cell at Row: ${r}, Column: ${c}`);
-
-        // 3. Call the function that handles the game logic (we'll write this next)
+        // 4. Trigger the logic
+        console.log(`Cell Clicked: ${r}, ${c}`); // Debug log to verify fix
         handleMove(r, c);
-        } else {
-            alert("Game is paused! Please resume to make a move.");
-        }
     });
-});
 
-document.getElementById('pause-btn').addEventListener('click', () => {
-    gameState.isPaused = !gameState.isPaused; // Flip true to false or vice versa
-    if (gameState.isPaused) {
-        gameState.bgm.pause();
-    } else {
-        gameState.bgm.play();
-    }
-    document.getElementById('pause-btn').innerText = gameState.isPaused ? "Resume" : "Pause";
-});
-
-
-const myButton = document.getElementById('reset-btn');
-myButton.addEventListener('click', () => {
-    // 1. Reset the logic numbers
-    gameState.totalTime = 180;
-    gameState.turnTime = 15;
-    gameState.currentPlayer = 1;
-    gameState.scores.player1 = 0;
-    gameState.scores.player2 = 0;
-    gameState.isPaused = false; // Make sure it's unpaused
-    gameState.isGameOver = false;
-    gameState.board = []; // Clear the board data
-    gameState.activeAnimations = 0; // CLEAR THE GHOSTS
-    gameState.isGameOver = false;
-    gameState.firstMove.player1 = true;
-    gameState.firstMove.player2 = true;
-    initializeBoardData(); // Re-initialize the board data with empty cells
-    updateVisuals()
-
-
-    // 2. IMPORTANT: Loop through your data and clear the counts
-    for (let r = 0; r < 12; r++) {
-        for (let c = 0; c < 6; c++) {
-            gameState.board[r][c].count = 0;
-            gameState.board[r][c].owner = null;
-        }
+    // --- 3. CONTROL PANEL ---
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) {
+        pauseBtn.onclick = () => {
+            togglePause(); // Ensure this function is in your game_engine.js
+        };
     }
 
-    // 3. Sync the screen with the new empty data
-    updateVisuals(); 
-    startTimers(); // RESTART THE HEARTBEAT
-    alert("Game Reset!");
+    const resetBtn = document.getElementById('reset-btn');
+    if (resetBtn) {
+        resetBtn.onclick = () => {
+            if (confirm("Are you sure? This resets the board and cumulative scores.")) {
+                // Manually reset cumulative scores here if resetGame() doesn't do it
+                gameState.scores.player1 = 0;
+                gameState.scores.player2 = 0;
+                resetGame();
+            }
+        };
+    }
 });
 
-// Start the clocks when the page loads
-startTimers();
-
-
-
+/**
+ * Helper to ensure audio works on mobile/Chrome
+ */
+function unlockAudio() {
+    if (gameState.bgm && gameState.bgm.paused) {
+        gameState.bgm.play().catch(() => console.log("Audio waiting for user interaction"));
+    }
+}
