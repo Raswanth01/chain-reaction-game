@@ -14,19 +14,21 @@ body {
     font-family: 'Courier New', Courier, monospace;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Prevents mobile 'bounce' scrolling */
-    touch-action: manipulation; /* Optimizes for fast tapping */
+    /* CHANGE: Remove overflow: hidden to allow scrolling on small screens */
+    overflow-y: auto; 
+    touch-action: manipulation;
 }
 
 /* --- 2. SCREEN & MENU ARCHITECTURE --- */
 .screen {
     width: 100vw;
-    height: 100dvh; 
+    /* CHANGE: min-height instead of fixed height so it can grow with content */
+    min-height: 100dvh; 
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Start from top instead of centering */
     align-items: center;
-    transition: opacity 0.4s ease-in-out;
+    padding-bottom: 20px; /* Space at the bottom */
 }
 
 .hidden {
@@ -179,7 +181,6 @@ header {
 .cell:active {
     transform: scale(0.98); /* Slight click feedback */
 }
-
 
 .selection-group {
     margin-bottom: 25px;
@@ -341,16 +342,16 @@ header {
 /* This container holds both the sidebar and the grid */
 #game-layout {
     display: flex;
-    flex-direction: row; /* Sidebar on the left */
-    justify-content: center; /* Centers the whole group in the screen */
-    align-items: flex-start;
-    gap: 30px; /* Space between sidebar and grid */
-    width: 100%;
-    margin-top: 10px;
+    flex-direction: row; 
+    justify-content: center;
+    align-items: stretch; 
+    gap: 20px;
+    width: 95vw;
+    margin: 10px auto;
 }
 
 #power-up-sidebar {
-    width: 160px;
+    
     background: rgba(20, 20, 20, 0.9);
     border: 2px solid var(--neon-cyan);
     padding: 15px;
@@ -413,48 +414,86 @@ header {
     color: #000;
 }
 
-/* --- 10. RESPONSIVE TRANSITION --- */
+#power-up-sidebar, #stats-sidebar {
+    /* Use the same clamp logic as your grid columns to keep them 'locked' */
+    width: calc(6 * clamp(42px, 12vw, 6.2vh)); 
+    max-width: 95vw; /* Safety for very small screens */
+    background: rgba(15, 15, 15, 0.9);
+    border: 2px solid var(--neon-cyan);
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 /* --- 10. RESPONSIVE TRANSITION --- */
 
-@media (max-width: 850px) {
+/* --- 10. RESPONSIVE TRANSITION --- */
+
+@media (max-width: 900px) {
+    /* Stack the game vertically */
     #game-layout {
-        flex-direction: column; /* Stack on top for mobile */
+        flex-direction: column;
         align-items: center;
-        gap: 15px;
     }
 
-    #power-up-sidebar {
-        /* Set max-width to match your grid's clamp maximum (6 * 6.2vh + gaps) */
-        width: 90%; 
-        max-width: 400px; /* Limits growth to stay similar to grid width */
-        
-        flex-direction: row; 
-        flex-wrap: wrap;
-        justify-content: center;
-        padding: 10px;
+    #power-up-sidebar, #stats-sidebar, #grid {
+        /* Force them all to the same width on mobile */
+        width: min(92vw, 400px); 
+        height: auto;
     }
-
-    #inventory-display {
-        flex-direction: row; /* Keep P1, P2 etc. side-by-side on mobile */
-        gap: 10px;
-        margin-bottom: 5px;
-    }
-
-    .inv-item {
-        font-size: 0.75rem;
-        padding: 4px 8px;
+    
+    /* Ensure the grid's internal columns still fit the new width */
+    #grid {
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(12, 1fr);
+        aspect-ratio: 6 / 12;
     }
 
     .power-btn {
-        width: auto; /* Allow buttons to sit side-by-side if needed */
-        min-width: 120px;
+        flex: 1 1 40%; /* Two buttons side-by-side on mobile */
+        min-height: 50px; /* Bigger tap area for fingers */
+        margin: 5px;
+        font-size: 0.8rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* 2. CONTROL BUTTONS (Pause/Reset) */
+    #controls {
+        width: 95vw;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    #pause-btn, #reset-btn {
+        flex: 1;
+        height: 55px; /* Large, easy-to-hit buttons at the bottom */
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    /* 3. INVENTORY TEXT */
+    #inventory-display {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Two columns for P1-P4 info */
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .inv-item {
+        font-size: 0.7rem;
+        text-align: center;
         padding: 8px;
     }
 }
 
 #stats-sidebar {
-    width: 180px;
+    
     background: rgba(10, 10, 10, 0.9);
     border: 2px solid var(--neon-purple); /* Using your purple for stats */
     padding: 15px;
@@ -482,14 +521,6 @@ header {
     gap: 8px;
 }
 
-/* Responsive: Right sidebar drops below the grid on mobile */
-@media (max-width: 850px) {
-    #stats-sidebar {
-        width: 90%;
-        max-width: 400px;
-        order: 3; /* Places it after the grid */
-    }
-}
 
 /* SWAP: Purple Theme */
 #swap-action-btn.power-available {
