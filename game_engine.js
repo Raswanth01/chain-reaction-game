@@ -25,8 +25,6 @@ function resetGame() {
     gameState.isGameOver = false;
     gameState.isPaused = false;
     gameState.activeAnimations = 0;
-
-    // Use numeric keys so nextTurn() can loop 1, 2, 3, 4 easily
     gameState.firstMove = { 1: true, 2: true, 3: true, 4: true };
     gameState.scores = { 1: 0, 2: 0, 3: 0, 4: 0 };
     gameState.hasMovedThisTurn = false; // Unlock the grid
@@ -89,14 +87,31 @@ function generateRandomPortals() {
     const b1 = getUniquePos(used); used.push(b1);
     const b2 = getUniquePos(used); used.push(b2);
 
+
     gameState.portals = [
         { entry: a1, exit: a2, type: 'a' },
         { entry: a2, exit: a1, type: 'a' },
         { entry: b1, exit: b2, type: 'b' },
-        { entry: b2, exit: b1, type: 'b' }
+        { entry: b2, exit: b1, type: 'b' },
     ];
-}
 
+    if (gameState.totalPlayers > 2) {
+        const c1 = getUniquePos(used); used.push(c1);
+        const c2 = getUniquePos(used); used.push(c2);
+        gameState.portals.push(
+            { entry: c1, exit: c2, type: 'c' },
+            { entry: c2, exit: c1, type: 'c' }
+        );
+    }
+    if(gameState.totalPlayers > 3) {
+        const d1 = getUniquePos(used); used.push(d1);
+        const d2 = getUniquePos(used); used.push(d2);
+        gameState.portals.push(
+            { entry: d1, exit: d2, type: 'd' },
+            { entry: d2, exit: d1, type: 'd' }
+        );
+    }
+}
 function handleMove(r, c) {
     if (gameState.isGameOver || gameState.isPaused || gameState.activeAnimations > 0) return;
 
@@ -141,6 +156,7 @@ function handleMove(r, c) {
     cellData.owner = gameState.currentPlayer;
     gameState.sounds.place.currentTime = 0;
     gameState.sounds.place.play();
+    logMove(`P${gameState.currentPlayer} placed dot at (${r},${c})`);
 
     if (cellData.count >= cellData.capacity) {
         explode(r, c, gameState.currentPlayer);
@@ -236,26 +252,48 @@ async function explode(r, c, attacker) {
 
 function executeBomb(r, c) {
     const p = gameState.currentPlayer;
-
-    // The "Wipe Zone": Target + Up, Down, Left, Right
     const area = [[r, c], [r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]];
 
+    // 1. Wipe the data
     area.forEach(([tr, tc]) => {
         if (tr >= 0 && tr < 12 && tc >= 0 && tc < 6) {
             const cell = gameState.board[tr][tc];
-            cell.count = 0; // Remove all dots
-            cell.owner = null; // Clear ownership
+            cell.count = 0;
+            cell.owner = null;
+        }
+    });
+    gameState.sounds.boom.currentTime = 0;
+    gameState.sounds.boom.play();
+    logMove(`SYSTEM: P${p} detonated BOMB at (${r},${c})`);
+
+    // 2. Redraw the board so dots disappear
+    updateVisuals();
+
+    // 3. Trigger the JS-only Animation
+    area.forEach(([tr, tc]) => {
+        const el = document.getElementById(`cell-${tr}-${tc}`);
+        if (el) {
+            // This is the JS-only animation method
+            el.animate([
+                // Keyframes
+                { backgroundColor: '#ffffff', boxShadow: '0 0 40px #ffffff', transform: 'scale(1.1)', zIndex: 100 },
+                { backgroundColor: '#ff3131', boxShadow: '0 0 20px #ff3131', transform: 'scale(1.05)' },
+                { backgroundColor: 'transparent', boxShadow: 'none', transform: 'scale(1)', zIndex: 1 }
+            ], {
+                // Timing options
+                duration: 400,
+                easing: 'ease-out'
+            });
         }
     });
 
-    // Consume the bomb and exit targeting mode
+    // 4. State cleanup
     gameState.inventory[p].bomb--;
     gameState.activePowerUp = null;
-
-    updateVisuals(); 
     updateScoreUI();
-    nextTurn(); // Using the power-up finishes the player's turn
-}
+
+    setTimeout(() => nextTurn(), 400);
+} 
 
 function nextTurn() {
     // Find the next player number (loops 1->2->3->4->1)
@@ -449,10 +487,11 @@ function executeSwap(r, c) {
     const attacker = gameState.currentPlayer;
     const targetCell = gameState.board[r][c];
     const victim = targetCell.owner;
+    logMove(`CRITICAL: P${attacker} swapped with P${victim}`);
 
     // 1. Validation: You must click a cell owned by an opponent
     if (victim === null || victim === attacker) {
-        console.log("Invalid target! You must click an enemy cell to swap empires.");
+        window.alert("Invalid target! You must click an enemy cell to swap empires.");
         // We don't end the turn so the player can try clicking a valid target
         return;
     }
@@ -472,6 +511,8 @@ function executeSwap(r, c) {
             // Note: Cells owned by other players (in 3 or 4 player games) are untouched
         }
     }
+    gameState.sounds.swap.currentTime = 0;
+    gameState.sounds.swap.play();
 
     // 3. Visual Feedback: Add a glitch effect to the screen
     document.body.style.animation = "glow-pulse 0.5s ease-out";

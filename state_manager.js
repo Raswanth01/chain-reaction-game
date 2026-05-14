@@ -23,7 +23,9 @@ const gameState = {
         place: new Audio('assets/place.wav'),
         explode: new Audio('assets/pop.wav'),
         win: new Audio('assets/win.wav'),
-        portal: new Audio('assets/portal.wav')
+        portal: new Audio('assets/portal.wav'),
+        boom: new Audio('assets/boom.wav'),
+        swap: new Audio('assets/swap.wav')
     },
     firstMove: { 1: true, 2: true, 3: true, 4: true },
     // Track inventory for all players
@@ -45,6 +47,7 @@ gameState.bgm.loop = true;      // Makes the music restart automatically
 gameState.bgm.volume = 0.5;    // Lower volume (30%) so SFX can be heard
 gameState.sounds.win.volume = 0.6;
 gameState.sounds.portal.volume = 1.5;
+gameState.sounds.swap.volume = 0.8;
 // Initialize the data for a 6x12 board
 function initializeBoardData() {
     for (let r = 0; r < 12; r++) {

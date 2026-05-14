@@ -2,17 +2,14 @@
 
 function createGrid() {
     const grid = document.getElementById('grid');
-    if (!grid) return;
-
+    if (!grid) return; // Safety check to prevent errors if the element is missing
     grid.innerHTML = ""; // Clear existing grid
     for (let r = 0; r < 12; r++) {
         for (let c = 0; c < 6; c++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            cell.id = `cell-${r}-${c}`;
-            
-            // Add data attributes for easier JS access
-            cell.dataset.row = r;
+            cell.id = `cell-${r}-${c}`; 
+            cell.dataset.row = r; 
             cell.dataset.col = c;
             
             grid.appendChild(cell);
@@ -25,7 +22,7 @@ function updateVisuals() {
     for (let r = 0; r < 12; r++) {
         for (let c = 0; c < 6; c++) {
             const cell = document.getElementById(`cell-${r}-${c}`);
-            if (!cell) continue;
+            if (!cell) continue; // Safety check in case of missing cell (shouldn't happen if createGrid works correctly)
 
             const data = gameState.board[r][c];
             
@@ -39,7 +36,7 @@ function updateVisuals() {
             if (gameState.currentMode === 'hacker' && gameState.portals) {
                 const portal = gameState.portals.find(p => p.entry.r === r && p.entry.c === c);
                 if (portal) {
-                    cell.classList.add(portal.type === 'a' ? 'portal-a' : 'portal-b');
+                    cell.classList.add(`portal-${portal.type}`);
                 }
             }
 
@@ -49,11 +46,7 @@ function updateVisuals() {
                     const dot = document.createElement('div');
                     
                     // Assign classes for CSS to handle positioning and color
-                    dot.className = `dot p${data.owner}-dot dot-${i}-of-${data.count}`;
-                    
-                    // CRITICAL: Prevent the dot from stealing the click from the cell
-                    dot.style.pointerEvents = 'none';
-                    
+                    dot.className = `dot p${data.owner}-dot dot-${i}-of-${data.count}`;                    
                     cell.appendChild(dot);
                 }
             }
@@ -63,11 +56,10 @@ function updateVisuals() {
     updateScoreUI();
 }
 
-// ui_controller.js
 
 function updateScoreUI() {
     const scoreBoard = document.getElementById('score-board');
-    if (!scoreBoard) return;
+    if (!scoreBoard) return; // Safety check to prevent errors if the element is missing
 
     // 1. LEADERBOARD LOGIC: Rank players by score
     let rankings = [];
@@ -76,7 +68,7 @@ function updateScoreUI() {
     }
     rankings.sort((a, b) => b.score - a.score); // Highest score first
 
-    scoreBoard.innerHTML = ''; 
+    scoreBoard.innerHTML = ''; // Clear existing scores
     rankings.forEach((player, index) => {
         const badge = document.createElement('div');
         // Standardize the class to match your style.css
@@ -87,7 +79,7 @@ function updateScoreUI() {
         const isDead = isPlayerWipedOut(player.id);
         if (isDead) badge.style.opacity = "0.3";
 
-        badge.innerHTML = `<span>#${index + 1} Player ${player.id}</span> <span>${player.score}</span>`;
+        badge.innerHTML = `<span>${player.id} .#${index + 1} </span> <span>Score ${player.score}</span>`;
         scoreBoard.appendChild(badge);
     });
 
@@ -122,12 +114,8 @@ if (bombBtn) {
 const swapBtn = document.getElementById('swap-action-btn');
 if (swapBtn) {
     const hasSwaps = gameState.inventory[gameState.currentPlayer].swap > 0;
-    
-    // Wake up the swap button if they hit 7-chain + 500 score
     swapBtn.classList.toggle('power-available', hasSwaps);
     swapBtn.disabled = !hasSwaps;
-
-    // Highlight if selected for targeting
     swapBtn.classList.toggle('power-selected', gameState.activePowerUp === 'swap');
 }
 }
@@ -180,8 +168,28 @@ function selectPowerUp(type) {
     const p = gameState.currentPlayer;
     if (gameState.inventory[p][type] > 0) {
         gameState.activePowerUp = (gameState.activePowerUp === type) ? null : type;
-        updateScoreUI();
+        updateScoreUI(); // To refresh button states
+
     }
+}
+
+// ui_controller.js
+function logMove(message) {
+    const log = document.getElementById('move-history-log');
+    if (!log) return;
+
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    
+    // Get current game time for the timestamp
+    const min = Math.floor(gameState.totalTime / 60);
+    const sec = gameState.totalTime % 60;
+    const timestamp = `[${min}:${sec < 10 ? '0' : ''}${sec}]`;
+
+    entry.innerHTML = `<span class="log-time">${timestamp}</span> ${message}`;
+    
+    // Add to the top of the log
+    log.prepend(entry);
 }
 
 // Build the grid structure once immediately

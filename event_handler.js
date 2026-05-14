@@ -20,18 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     // --- 1. MAIN MENU NAVIGATION ---
-    const normalBtn = document.querySelector('.menu-btn:not(.hacker-btn)');
+    const normalBtn = document.getElementById('normal-mode-btn');
     if (normalBtn) {
         normalBtn.onclick = () => {
-            unlockAudio(); // Important for mobile browsers
+            unlockAudio(); // For safety
             startGame('normal');
         };
     }
 
-    const hackerBtn = document.querySelector('.hacker-btn');
+    const hackerBtn = document.getElementById('hacker-mode-btn');
     if (hackerBtn) {
         hackerBtn.onclick = () => {
-            unlockAudio();
+            unlockAudio(); // For safety
             startGame('hacker');
         };
     }
@@ -48,25 +48,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. THE CLICK FIX (GLOBAL DELEGATION) ---
     // Instead of grabbing '#grid' specifically, we listen to the whole body.
     // This is the most reliable way to ensure clicks are never "lost".
-    document.body.addEventListener('click', (e) => {
-        // 1. Check if the click was on a cell or inside a cell
-        const cell = e.target.closest('.cell');
-        if (!cell) return;
+    // event_handler.js
+document.body.addEventListener('click', (e) => {
+    // 1. Identify if the click was on a cell
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
 
-        // 2. Safety checks
-        if (!gameState.gameStarted || gameState.isPaused || gameState.activeAnimations > 0) {
-            return;
+    // 2. THE HARD PAUSE CHECK (Priority #1)
+    if (gameState.isPaused) {
+        window.alert("SYSTEM PAUSED: Please resume the game to continue.");
+        return; // This stops the code immediately
+    }
+
+    // 3. Other technical safety checks
+    if (!gameState.gameStarted || gameState.activeAnimations > 0) {
+        return;
+    }
+
+    // 4. Extract coordinates
+    const parts = cell.id.split('-');
+    const r = parseInt(parts[1]);
+    const c = parseInt(parts[2]);
+
+    // 5. OPPONENT CELL CHECK
+    const cellData = gameState.board[r][c];
+    const currentPlayer = gameState.currentPlayer;
+
+    if (cellData.owner !== null && cellData.owner !== currentPlayer) {
+        // Block unless using a bomb
+        if (gameState.activePowerUp !== 'bomb') {
+            window.alert("ACCESS DENIED: You cannot click on an opponent's cell!");
+            return; 
         }
-
-        // 3. Extract coordinates
-        const parts = cell.id.split('-');
-        const r = parseInt(parts[1]);
-        const c = parseInt(parts[2]);
-
-        // 4. Trigger the logic
-        console.log(`Cell Clicked: ${r}, ${c}`); // Debug log to verify fix
-        handleMove(r, c);
-    });
+    }
+    
+    handleMove(r, c);
+});
 
     // --- 3. CONTROL PANEL ---
     const pauseBtn = document.getElementById('pause-btn');
