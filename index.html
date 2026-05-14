@@ -10,26 +10,69 @@
     <div id="main-menu" class="screen">
         <h1 class="neon-title">CHAIN REACTOR</h1>
         <div class="menu-box">
+            <div class="selection-group">
+                <p>PLAYERS</p>
+                <div class="player-selector">
+                    <button class="player-opt active" onclick="setPlayerCount(2)">2</button>
+                    <button class="player-opt" onclick="setPlayerCount(3)">3</button>
+                    <button class="player-opt" onclick="setPlayerCount(4)">4</button>
+                </div>
+            </div>
+            
             <button class="menu-btn" onclick="startGame('normal')">NORMAL MODE</button>
             <button class="menu-btn hacker-btn" onclick="startGame('hacker')">HACKER MODE</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen hidden">
-        <div id="game-container">
-            <header>
-                <button id="back-to-menu">← Menu</button>
-                <div id="game-timer">Total Time: 03:00</div>
-                <div id="turn-timer">Turn Time: 15</div>
-                <div id="score-board">P1: 0 | P2: 0</div>
+        <header>
+            <button id="back-to-menu">← MENU</button>
+            <div class="timer-box">
+                <div id="game-timer">03:00</div>
+                <div id="turn-timer">TURN: 15</div>
+            </div>
+            <div id="player-indicators">TURN: PLAYER 1</div>
             </header>
 
-            <div id="grid"></div>
+        <div id="game-layout">
+            
+            <aside id="power-up-sidebar">
+                <h3 class="sidebar-title">POWER-UPS</h3>
+                <div id="inventory-display">
+                    <div id="p1-inv" class="inv-item">P1: 💣 0 | 🔄 0</div>
+                    <div id="p2-inv" class="inv-item">P2: 💣 0 | 🔄 0</div>
+                    <div id="p3-inv" class="inv-item hidden">P3: 💣 0 | 🔄 0</div>
+                    <div id="p4-inv" class="inv-item hidden">P4: 💣 0 | 🔄 0</div>
+                </div>
+                <hr class="sidebar-divider">
+                <button id="bomb-action-btn" class="power-btn" onclick="selectPowerUp('bomb')">
+                    💣 USE BOMB
+                </button>
+                <button id="swap-action-btn" class="power-btn" onclick="selectPowerUp('swap')">
+                    🔄 USE SWAP
+                </button>
+            </aside>
 
-            <div id="controls">
-                <button id="pause-btn">Pause</button>
-                <button id="reset-btn">Reset</button>
-            </div>
+            <main id="grid-container">
+                <div id="grid"></div>
+            </main>
+
+            <aside id="stats-sidebar">
+                <h3 class="sidebar-title">LEADERBOARD</h3>
+                <div id="score-board"></div> 
+                
+                <hr class="sidebar-divider">
+                
+                <h3 class="sidebar-title">HISTORY</h3>
+                <div id="move-history-log">
+                    </div>
+            </aside>
+
+        </div>
+
+        <div id="controls">
+            <button id="pause-btn">PAUSE</button>
+            <button id="reset-btn">RESET</button>
         </div>
     </div>
 

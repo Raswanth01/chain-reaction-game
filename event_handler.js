@@ -80,9 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (resetBtn) {
         resetBtn.onclick = () => {
             if (confirm("Are you sure? This resets the board and cumulative scores.")) {
-                // Manually reset cumulative scores here if resetGame() doesn't do it
-                gameState.scores.player1 = 0;
-                gameState.scores.player2 = 0;
+                
                 resetGame();
             }
         };

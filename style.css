@@ -115,6 +115,15 @@ header {
     gap: 15px;
 }
 
+#player-indicators {
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border: 1px solid rgba(0, 255, 204, 0.3);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
 #pause-btn, #reset-btn {
     padding: 10px 20px;
     background: transparent;
@@ -156,6 +165,42 @@ header {
     overflow: visible; /* Required for ball translations */
 }
 
+.selection-group {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.selection-group p {
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+    color: var(--neon-cyan);
+}
+
+.player-selector {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.player-opt {
+    width: 45px;
+    height: 45px;
+    background: transparent;
+    border: 1px solid #444;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.player-opt.active {
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 15px var(--neon-cyan);
+    background: rgba(0, 255, 204, 0.1);
+}
+
 /* --- 5. THE BALLS (DOTS) --- */
 .dot {
     width: 40%; /* Exactly 40% as requested */
@@ -172,9 +217,22 @@ header {
     background: radial-gradient(circle at 30% 30%, var(--p1-color), #800000); 
     box-shadow: 0 0 8px var(--p1-color);
 }
+/* Green Player (P2) */
 .p2-dot { 
-    background: radial-gradient(circle at 30% 30%, var(--p2-color), #002b80); 
-    box-shadow: 0 0 8px var(--p2-color);
+    background: radial-gradient(circle at 30% 30%, #39ff14, #004d00); 
+    box-shadow: 0 0 10px #39ff14;
+}
+
+/* Blue Player (P3) */
+.p3-dot { 
+    background: radial-gradient(circle at 30% 30%, #00d2ff, #002b80); 
+    box-shadow: 0 0 10px #00d2ff;
+}
+
+/* Yellow Player (P4) */
+.p4-dot { 
+    background: radial-gradient(circle at 30% 30%, #fff01f, #807000); 
+    box-shadow: 0 0 10px #fff01f;
 }
 
 /* --- 6. BALL POSITIONING SYSTEM --- */
@@ -229,8 +287,202 @@ header {
         gap: 5px;
     }
     #score-board {
-        width: 100%;
-        text-align: center;
-        margin-top: 5px;
+    display: flex;
+    gap: 15px;
+}
+
+.score-badge {
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.active-player {
+    border-bottom: 2px solid currentColor;
+    transform: scale(1.1);
+    filter: brightness(1.3);
+}
+}
+
+/* --- 9. POWER-UP LAYOUT SYSTEM --- */
+
+/* This container holds both the sidebar and the grid */
+#game-layout {
+    display: flex;
+    flex-direction: row; /* Sidebar on the left */
+    justify-content: center; /* Centers the whole group in the screen */
+    align-items: flex-start;
+    gap: 30px; /* Space between sidebar and grid */
+    width: 100%;
+    margin-top: 10px;
+}
+
+#power-up-sidebar {
+    width: 160px;
+    background: rgba(20, 20, 20, 0.9);
+    border: 2px solid var(--neon-cyan);
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+}
+
+.sidebar-title {
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+    margin: 0;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+#inventory-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.inv-item {
+    font-size: 0.8rem;
+    padding: 5px;
+    background: #222;
+    border-radius: 4px;
+    border-left: 3px solid transparent;
+}
+
+/* Highlights the player whose turn it is in the sidebar */
+.active-inv {
+    border-left-color: var(--neon-cyan);
+    background: rgba(0, 255, 204, 0.1);
+}
+
+.power-btn {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    color: #444; /* Dimmed when not available */
+    border: 1px solid #333;
+    cursor: not-allowed;
+    font-family: inherit;
+    transition: 0.3s;
+}
+
+/* Active bomb button styles */
+.power-available {
+    border-color: #ff3131;
+    color: #ff3131;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 49, 49, 0.3);
+}
+
+.power-selected {
+    background: #ff3131;
+    color: #000;
+}
+
+/* --- 10. RESPONSIVE TRANSITION --- */
+
+/* --- 10. RESPONSIVE TRANSITION --- */
+
+@media (max-width: 850px) {
+    #game-layout {
+        flex-direction: column; /* Stack on top for mobile */
+        align-items: center;
+        gap: 15px;
     }
+
+    #power-up-sidebar {
+        /* Set max-width to match your grid's clamp maximum (6 * 6.2vh + gaps) */
+        width: 90%; 
+        max-width: 400px; /* Limits growth to stay similar to grid width */
+        
+        flex-direction: row; 
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    #inventory-display {
+        flex-direction: row; /* Keep P1, P2 etc. side-by-side on mobile */
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+
+    .inv-item {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    .power-btn {
+        width: auto; /* Allow buttons to sit side-by-side if needed */
+        min-width: 120px;
+        padding: 8px;
+    }
+}
+
+#stats-sidebar {
+    width: 180px;
+    background: rgba(10, 10, 10, 0.9);
+    border: 2px solid var(--neon-purple); /* Using your purple for stats */
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 0 15px rgba(188, 19, 254, 0.1);
+}
+
+#move-history-log {
+    height: 120px;
+    overflow-y: auto;
+    font-size: 0.7rem;
+    background: #000;
+    padding: 5px;
+    border: 1px solid #333;
+    display: flex;
+    flex-direction: column-reverse; /* Newest moves at the top */
+}
+
+#score-board {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Responsive: Right sidebar drops below the grid on mobile */
+@media (max-width: 850px) {
+    #stats-sidebar {
+        width: 90%;
+        max-width: 400px;
+        order: 3; /* Places it after the grid */
+    }
+}
+
+/* SWAP: Purple Theme */
+#swap-action-btn.power-available {
+    border-color: var(--neon-purple);
+    color: var(--neon-purple);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(188, 19, 254, 0.3);
+}
+
+#swap-action-btn.power-selected {
+    background: var(--neon-purple);
+    color: #000;
+    box-shadow: 0 0 20px var(--neon-purple);
+}
+
+/* Highlight for the first cell selected during a swap */
+.cell-selected-swap {
+    border-color: var(--neon-purple) !important;
+    box-shadow: inset 0 0 15px var(--neon-purple), 0 0 10px var(--neon-purple) !important;
+    z-index: 10;
+}
+
+/* Ensure emojis and text fit in the sidebar items */
+.inv-item {
+    white-space: nowrap;
+    font-size: 0.7rem; /* Slightly smaller to fit both icons */
 }
