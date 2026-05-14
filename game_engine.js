@@ -43,6 +43,8 @@ function resetGame() {
         3: { bomb: 0, swap: 0 },
         4: { bomb: 0, swap: 0 }
     };
+    const log = document.getElementById('move-history-log');
+    if (log) log.innerHTML = "";
     initializeBoardData(); // Rebuilds the grid array
     updateVisuals();       // Clears dots from cells
     updateTimerUI();
