@@ -72,12 +72,16 @@ document.body.addEventListener('click', (e) => {
     const currentPlayer = gameState.currentPlayer;
 
     if (cellData.owner !== null && cellData.owner !== currentPlayer) {
-        // Block unless using a bomb
-        if (gameState.activePowerUp !== 'bomb') {
-            window.alert("ACCESS DENIED: You cannot click on an opponent's cell!");
-            return; 
-        }
+    // 1. Check if the player is currently trying to use an aggressive power-up
+    const usingBomb = gameState.activePowerUp === 'bomb';
+    const usingSwap = gameState.activePowerUp === 'swap';
+
+    // 2. ONLY block the click if they are NOT using a bomb AND NOT using a swap
+    if (!usingBomb && !usingSwap) {
+        window.alert("ACCESS DENIED: You cannot click on an opponent's cell!");
+        return; 
     }
+}
     
     handleMove(r, c);
 });
