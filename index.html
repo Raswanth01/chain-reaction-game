@@ -8,21 +8,85 @@
 </head>
 <body>
     <div id="main-menu" class="screen">
-        <h1 class="neon-title">CHAIN REACTOR</h1>
-        <div class="menu-box">
-            <div class="selection-group">
-                <p>PLAYERS</p>
-                <div class="player-selector">
-                    <button class="player-opt active" onclick="setPlayerCount(2)">2</button>
-                    <button class="player-opt" onclick="setPlayerCount(3)">3</button>
-                    <button class="player-opt" onclick="setPlayerCount(4)">4</button>
-                </div>
-            </div>
-            
-            <button class="menu-btn" id="normal-mode-btn">NORMAL MODE</button>
-            <button class="menu-btn hacker-btn" id="hacker-mode-btn">HACKER MODE</button>
-        </div>
+    <h1 class="neon-title">CHAIN REACTOR</h1>
+    <div class="menu-box">
+        <button class="menu-btn" id="normal-mode-btn">NORMAL MODE</button>
+        <button class="menu-btn hacker-btn" id="hacker-mode-btn">HACKER MODE</button>
+        <button id="how-to-play-btn" class="menu-btn">How to Play</button>
     </div>
+</div>
+
+<div id="rules-modal" class="screen hidden">
+    <div class="menu-box">
+        <h2 class="neon-title">RULES</h2>
+        <div class="rules-content">
+            <h3 style="color: var(--neon-cyan); border-bottom: 1px solid var(--neon-cyan); padding-bottom: 5px;">► SYSTEM OBJECTIVE</h3>
+            <p><b>Eliminate</b> all opponents by capturing every cell on the grid. 
+                The game ends instantly if you are the last player standing, or when the 
+                <b>Global Clock</b> hits zero—in which case the player with the 
+                highest score wins.
+            </p>
+
+            <h3 style="color: var(--neon-cyan); border-bottom: 1px solid var(--neon-cyan); padding-bottom: 5px;">► DEPLOYMENT PROTOCOL</h3>
+            <p>
+                <b>1. ACTION PHASE:</b> On your turn of <b>20 seconds</b>, you may either <b>Place a Dot</b> or <b>Execute a Power-Up</b>. 
+                Performing either action successfully ends your turn.
+            </p>
+            <p>
+                <b>2. INITIALIZATION:</b> Your very first move is a "Jumpstart". 
+                It instantly fills a cell to <b>[Capacity - 1]</b>. 
+                (e.g., A Center cell with Cap 4 will start with 3 dots on your first click).
+            </p>
+            <p>
+                <b>3. STANDARD GROWTH:</b> After your first move, each subsequent click adds exactly <b>one dot</b> to your controlled cells or uncaptured cells.
+            </p>
+
+            <p>
+                <b>4. DETONATION:</b> Cells reaching capacity <b>explode</b>, sending dots to neighbors/orthagonal cells and flipping their ownership.
+            </p>
+
+            <h3 style="color: var(--neon-purple); border-bottom: 1px solid var(--neon-purple); padding-bottom: 5px;">► HACKER OVERRIDES</h3>
+        
+            <p>
+                <b>5. PORTAL WARP:</b> In Hacker Mode, specific cells are linked. 
+                Explosions hitting a portal are <b>instantly re-routed</b> to the linked exit coordinate.
+            </p>
+
+            <h3 style="color: #fff01f; border-bottom: 1px solid #fff01f; padding-bottom: 5px;">► POWER-UPS</h3>
+            <p>
+                <b>6. KINETIC BOMB:</b> Awarded upon achieving a <b>5-step chain reaction</b>. 
+                Once deployed, it initiates a high-impact surge that clears all dots from the <b>target cell and its four immediate neighbors</b> (North, South, East, West).
+            </p>
+            <p>
+                <b>7. EMPIRE SWAP:</b> The ultimate strategic heist. 
+                Unlocked through a <b>7-step chain reaction</b> and a <b>250 data score</b>. 
+                Allows you to instantly trade your entire territory with a targeted opponent, flipping the balance of the grid.
+            </p>
+            <h3 style="color: #ff007f; border-bottom: 1px solid #ff007f; padding-bottom: 5px;">► WIN CONDITIONS</h3>
+            <p>
+                <b>8. TOTAL WIPEOUT:</b> You win instantly if you capture every cell on the grid or by eliminating all opponents.
+            </p>
+            <p>
+                <b>9. SYSTEM TIMEOUT:</b> When the clock hits <b>00:00</b>, the player with the highest score is declared the winner.
+            </p>
+            <p>
+                <b>10. THE DRAW:</b> If the countdown ends and two or more players have the <b>exact same score</b>, the match is officially recorded as a <b>DRAW</b>.
+            </p>
+            <p>
+                <b>11. SURVIVAL:</b> If all other opponents are eliminated or their turn-timers expire, you win by being the <b>last active process</b> on the grid.
+            </p>
+
+            <h3 style="color: #00d2ff; border-bottom: 1px solid #00d2ff; padding-bottom: 5px;">► SCORING SYSTEM</h3>
+            <p>
+                <b>12. DEPLOYMENT POINTS:</b> You earn <b>+1 point</b> every time you manually place a dot on the grid.
+            </p>
+            <p>
+                <b>13. EXPLOSION YIELD:</b> When a cell reaches critical mass and detonates, you earn <b>+1 point for every dot</b> that successfully transfers into a neighboring cell. Large chain reactions will cause your score to spike rapidly as dots spread across the board.
+            </p>
+                        </div>
+                <button id="close-rules" class="menu-btn">Back</button>
+            </div>
+        </div>
 
     <div id="game-screen" class="screen hidden">
         <header>

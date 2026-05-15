@@ -36,6 +36,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    const howToBtn = document.getElementById('how-to-play-btn');
+    const rulesModal = document.getElementById('rules-modal');
+    const closeRules = document.getElementById('close-rules');
+    const mainMenu = document.getElementById('main-menu');
+
+    if (howToBtn) {
+        howToBtn.onclick = () => {
+            mainMenu.classList.add('hidden');
+            rulesModal.classList.remove('hidden');
+        };
+    }
+
+if (closeRules) {
+    closeRules.onclick = () => {
+        rulesModal.classList.add('hidden');
+        mainMenu.classList.remove('hidden');
+    };
+}
+
     const backBtn = document.getElementById('back-to-menu');
     if (backBtn) {
         backBtn.onclick = () => {
