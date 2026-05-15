@@ -79,7 +79,7 @@ function updateScoreUI() {
         const isTimedOut = gameState.inactivePlayers.includes(player.id);
         if (isDead || isTimedOut) badge.style.opacity = "0.3";
 
-        badge.innerHTML = `<span>${player.id} .#${index + 1} </span> <span>Score ${player.score}</span>`;
+        badge.innerHTML = `<span>${player.id} #${index + 1} </span> <span>Score ${player.score}</span>`;
         scoreBoard.appendChild(badge);
     });
 

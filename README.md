@@ -1,5 +1,8 @@
 # ⛓️ CHAIN REACTOR: SYSTEM PROTOCOL 
 
+## 🎬 WORKING DEMO
+![Watch the Demo](./assets/demo.mp4)
+
 ### ► CORE SYSTEM OBJECTIVE
 
 The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infiltrate, occupy, and expand your signature across all sectors.
@@ -53,8 +56,3 @@ The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infi
 
 * **Turn Expiry:** If a player's individual **20-second turn clock** hits `00:00` without an action, they are flagged as **Inactive**.
 * **Asset Freeze:** Upon timing out, the player's existing dots remain on the board as **Frozen Assets**. These nodes can be captured by rivals, but the timed-out player can no longer take turns.
-
-
-
-## 🎬 WORKING DEMO
-
