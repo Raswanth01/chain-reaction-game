@@ -9,6 +9,14 @@
 <body>
     <div id="main-menu" class="screen">
     <h1 class="neon-title">CHAIN REACTOR</h1>
+    <div class="selection-group">
+        <p>Players</p>
+        <div class="player-selector">
+            <button class="player-opt active" onclick="setPlayerCount(2)">2</button>
+            <button class="player-opt" onclick="setPlayerCount(3)">3</button>
+            <button class="player-opt" onclick="setPlayerCount(4)">4</button>
+        </div>
+    </div>
     <div class="menu-box">
         <button class="menu-btn" id="normal-mode-btn">NORMAL MODE</button>
         <button class="menu-btn hacker-btn" id="hacker-mode-btn">HACKER MODE</button>
@@ -21,35 +29,32 @@
         <h2 class="neon-title">RULES</h2>
         <div class="rules-content">
             <h3 style="color: var(--neon-cyan); border-bottom: 1px solid var(--neon-cyan); padding-bottom: 5px;">► SYSTEM OBJECTIVE</h3>
-            <p><b>Eliminate</b> all opponents by capturing every cell on the grid. 
-                The game ends instantly if you are the last player standing, or when the 
-                <b>Global Clock</b> hits zero—in which case the player with the 
-                highest score wins.
+            <p>
+                <b>The Player</b> must eliminate all opponents by capturing every cell on the grid. 
+                The session terminates instantly when a single <b>Player</b> remains, or when the <b>Global Clock</b> reaches zero—in which case <b>The Player</b> with the highest score is granted supremacy.
             </p>
 
             <h3 style="color: var(--neon-cyan); border-bottom: 1px solid var(--neon-cyan); padding-bottom: 5px;">► DEPLOYMENT PROTOCOL</h3>
             <p>
-                <b>1. ACTION PHASE:</b> On your turn of <b>20 seconds</b>, you may either <b>Place a Dot</b> or <b>Execute a Power-Up</b>. 
-                Performing either action successfully ends your turn.
+                <b>1. ACTION PHASE:</b> During the <b>20-second turn window</b>, <b>The Player</b> may either <b>Place a Dot</b> or <b>Execute a Power-Up</b>. 
+                Performing either action successfully concludes the turn.
             </p>
             <p>
-                <b>2. INITIALIZATION:</b> Your very first move is a "Jumpstart". 
-                It instantly fills a cell to <b>[Capacity - 1]</b>. 
-                (e.g., A Center cell with Cap 4 will start with 3 dots on your first click).
+                <b>2. INITIALIZATION:</b> The very first move functions as a "Jumpstart". 
+                It instantly populates a cell to <b>[Capacity - 1]</b>. 
+                (e.g., A Center cell with Cap 4 will initialize with 3 dots upon the first click).
             </p>
             <p>
-                <b>3. STANDARD GROWTH:</b> After your first move, each subsequent click adds exactly <b>one dot</b> to your controlled cells or uncaptured cells.
+                <b>3. STANDARD GROWTH:</b> Following initialization, each subsequent placement adds exactly <b>one dot</b> to controlled or uncaptured cells.
             </p>
-
             <p>
-                <b>4. DETONATION:</b> Cells reaching capacity <b>explode</b>, sending dots to neighbors/orthagonal cells and flipping their ownership.
+                <b>4. DETONATION:</b> Cells reaching critical capacity <b>explode</b>, dispersing dots to orthogonal neighbors and flipping ownership to <b>The Player</b> who triggered the reaction.
             </p>
 
             <h3 style="color: var(--neon-purple); border-bottom: 1px solid var(--neon-purple); padding-bottom: 5px;">► HACKER OVERRIDES</h3>
-        
             <p>
-                <b>5. PORTAL WARP:</b> In Hacker Mode, specific cells are linked. 
-                Explosions hitting a portal are <b>instantly re-routed</b> to the linked exit coordinate.
+                <b>5. PORTAL WARP:</b> In Hacker Mode, specific nodes are linked. 
+                Explosions entering a portal are <b>instantly re-routed</b> to the corresponding exit coordinate.
             </p>
 
             <h3 style="color: #fff01f; border-bottom: 1px solid #fff01f; padding-bottom: 5px;">► POWER-UPS</h3>
@@ -59,34 +64,48 @@
             </p>
             <p>
                 <b>7. EMPIRE SWAP:</b> The ultimate strategic heist. 
-                Unlocked through a <b>7-step chain reaction</b> and a <b>250 data score</b>. 
-                Allows you to instantly trade your entire territory with a targeted opponent, flipping the balance of the grid.
+                Unlocked through a <b>7-step chain reaction</b> and a <b>250-point data score</b>. 
+                Allows <b>The Player</b> to instantly trade an entire controlled territory with a targeted opponent, flipping the balance of the grid.
             </p>
+
             <h3 style="color: #ff007f; border-bottom: 1px solid #ff007f; padding-bottom: 5px;">► WIN CONDITIONS</h3>
             <p>
-                <b>8. TOTAL WIPEOUT:</b> You win instantly if you capture every cell on the grid or by eliminating all opponents.
+                <b>8. TOTAL WIPEOUT:</b> Instant victory is achieved by capturing every cell on the grid or by eliminating all opponents.
             </p>
             <p>
-                <b>9. SYSTEM TIMEOUT:</b> When the clock hits <b>00:00</b>, the player with the highest score is declared the winner.
+                <b>9. SYSTEM TIMEOUT:</b> When the clock hits <b>00:00</b>, <b>The Player</b> with the highest score is declared the winner.
             </p>
             <p>
-                <b>10. THE DRAW:</b> If the countdown ends and two or more players have the <b>exact same score</b>, the match is officially recorded as a <b>DRAW</b>.
+                <b>10. THE DRAW:</b> If the countdown ends and multiple <b>Players</b> hold the <b>exact same score</b>, the match is officially recorded as a <b>DRAW</b> among the players with the high score.
             </p>
             <p>
-                <b>11. SURVIVAL:</b> If all other opponents are eliminated or their turn-timers expire, you win by being the <b>last active process</b> on the grid.
+                <b>11. SURVIVAL:</b> If all other opponents are eliminated or their turn-timers expire, the <b>last player standing</b> on the grid wins by default.
             </p>
 
             <h3 style="color: #00d2ff; border-bottom: 1px solid #00d2ff; padding-bottom: 5px;">► SCORING SYSTEM</h3>
             <p>
-                <b>12. DEPLOYMENT POINTS:</b> You earn <b>+1 point</b> every time you manually place a dot on the grid.
+                <b>12. DEPLOYMENT POINTS:</b> <b>The Player</b> earns <b>+1 point</b> for every manual dot placement on the grid.
             </p>
             <p>
-                <b>13. EXPLOSION YIELD:</b> When a cell reaches critical mass and detonates, you earn <b>+1 point for every dot</b> that successfully transfers into a neighboring cell. Large chain reactions will cause your score to spike rapidly as dots spread across the board.
+                <b>13. EXPLOSION YIELD:</b> When a cell detonates, <b>The Player</b> earns <b>+1 point for every dot</b> that successfully transfers into a neighboring cell. Large chain reactions cause scores to spike rapidly as data spreads across the board.
             </p>
-                        </div>
-                <button id="close-rules" class="menu-btn">Back</button>
-            </div>
+
+            <h3 style="color: #ff3131; border-bottom: 1px solid #ff3131; padding-bottom: 5px;">► ELIMINATION PROTOCOLS</h3>
+            <p>
+                <b>14. TOTAL WIPEOUT:</b> <b>A Player</b> is officially eliminated when controlling <b>zero cells</b>. Note: Elimination cannot occur until <b>The Player</b> has completed the <b>Initialization Move</b>.
+            </p>
+            <p>
+                <b>15. TURN TIMEOUT:</b> If a <b>Player’s 20-second turn clock</b> reaches zero, that <b>Player</b> is flagged as <b>Inactive</b>. Current dots remain on the board as "Frozen Assets" for rivals to capture, but the <b>Inactive Player</b> can no longer take turns.
+            </p>
+            <p style="color: #ff8c00; font-weight: bold; border: 1px dashed #ff8c00; padding: 10px;">
+                CRITICAL WARNING: <b>The Player</b> must exercise extreme caution during deployment. Any chain reactions still processing after the 20-second window expires will result in <b>Elimination</b> of the player. Strategy must account for resolution time.
+            </p>
         </div>
+        <div>
+            <button id="close-rules" class="menu-btn">BACK TO MENU</button>    
+        </div>
+        
+    </div>
 
     <div id="game-screen" class="screen hidden">
         <header>
