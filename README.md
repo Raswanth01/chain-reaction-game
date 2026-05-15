@@ -6,7 +6,7 @@ The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infi
 
 * **Victory Condition (Wipeout):** Achieve total domination by eliminating every rival signature from the grid.
 * **Victory Condition (Timeout):** If the **Global Clock** hits `00:00`, the entity with the highest **Accumulated Score** is granted root access.
-* **The Draw Protocol:** In the event of a score parity at `00:00`, the system records a **DRAW**, and no supremacy is awarded.
+* **The Draw Protocol:** In the event of a score parity at `00:00`, the system records a **DRAW**, and supremacy is awarded to all players with same high score.
 
 ### ► DEPLOYMENT & INITIALIZATION
 
