@@ -41,10 +41,6 @@ The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infi
 * **Explosion Yield:** You earn **+1 point for every dot** that successfully transfers into a new cell during an explosion.
 * **Tactical Score:** Cumulative points are used to unlock high-tier assets like the **Empire Swap**.
 
-To complete your **System Protocol** for the **NIT Trichy** inductions, here is the detailed breakdown of the **Elimination Protocol**. This section is crucial because it explains the "blacklist" logic you coded to keep the game running smoothly when players lose or drop out.
-
----
-
 ### ► ELIMINATION & INACTIVITY PROTOCOLS
 
 **1. TOTAL WIPEOUT (Hard Elimination)**
