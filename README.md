@@ -1,8 +1,5 @@
 # ⛓️ CHAIN REACTOR: SYSTEM PROTOCOL 
 
-## 🎬 WORKING DEMO
-![Watch the Demo](./assets/demo.mp4)
-
 ### ► CORE SYSTEM OBJECTIVE
 
 The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infiltrate, occupy, and expand your signature across all sectors.
