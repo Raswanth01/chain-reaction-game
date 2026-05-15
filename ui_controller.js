@@ -71,13 +71,13 @@ function updateScoreUI() {
     scoreBoard.innerHTML = ''; // Clear existing scores
     rankings.forEach((player, index) => {
         const badge = document.createElement('div');
-        // Standardize the class to match your style.css
+        
         badge.className = `leader-rank ${gameState.currentPlayer === player.id ? 'active-player' : ''}`;
         badge.style.borderLeft = `3px solid ${gameState.playerColors[player.id]}`;
         
-        // Use the "isPlayerWipedOut" logic from our engine discussion
         const isDead = isPlayerWipedOut(player.id);
-        if (isDead) badge.style.opacity = "0.3";
+        const isTimedOut = gameState.inactivePlayers.includes(player.id);
+        if (isDead || isTimedOut) badge.style.opacity = "0.3";
 
         badge.innerHTML = `<span>${player.id} .#${index + 1} </span> <span>Score ${player.score}</span>`;
         scoreBoard.appendChild(badge);
@@ -121,15 +121,12 @@ if (swapBtn) {
 }
 
 
-
-// ... keep your other functions like updateTurnDisplay and updateTimerUI ...
-
 function updateTimerUI() {
     const gameTimerEl = document.getElementById('game-timer');
     const turnTimerEl = document.getElementById('turn-timer');
 
     if (gameTimerEl) {
-        // VS Code needs 'min' to be declared here
+        
         const min = Math.floor(gameState.totalTime / 60); 
         const sec = gameState.totalTime % 60;
         gameTimerEl.innerText = `Total Time: ${min}:${sec < 10 ? '0' : ''}${sec}`;
@@ -138,7 +135,6 @@ function updateTimerUI() {
     if (turnTimerEl) {
         turnTimerEl.innerText = `Turn Time: ${gameState.turnTime}`;
         
-        // Add the multiplayer color logic
         if (gameState.turnTime <= 5) {
             turnTimerEl.style.color = "#ff3131";
         } else {
@@ -151,10 +147,8 @@ function updateTurnDisplay() {
     const turnDisplay = document.getElementById('player-indicators');
     if (!turnDisplay) return;
 
-    // Get the color of the current player from your gameState
     const color = gameState.playerColors[gameState.currentPlayer];
     
-    // Update text and color
     turnDisplay.innerText = `TURN: PLAYER ${gameState.currentPlayer}`;
     turnDisplay.style.color = color;
     turnDisplay.style.borderColor = color;
@@ -173,7 +167,6 @@ function selectPowerUp(type) {
     }
 }
 
-// ui_controller.js
 function logMove(message) {
     const log = document.getElementById('move-history-log');
     if (!log) return;

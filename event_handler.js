@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (normalBtn) {
         normalBtn.onclick = () => {
             unlockAudio(); // For safety
-            startGame('normal');
+            startGame('normal'); 
         };
     }
 
@@ -46,15 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 2. THE CLICK FIX (GLOBAL DELEGATION) ---
-    // Instead of grabbing '#grid' specifically, we listen to the whole body.
-    // This is the most reliable way to ensure clicks are never "lost".
-    // event_handler.js
 document.body.addEventListener('click', (e) => {
     // 1. Identify if the click was on a cell
     const cell = e.target.closest('.cell');
     if (!cell) return;
 
-    // 2. THE HARD PAUSE CHECK (Priority #1)
+    // 2. THE HARD PAUSE CHECK 
     if (gameState.isPaused) {
         window.alert("SYSTEM PAUSED: Please resume the game to continue.");
         return; // This stops the code immediately
@@ -89,7 +86,7 @@ document.body.addEventListener('click', (e) => {
     const pauseBtn = document.getElementById('pause-btn');
     if (pauseBtn) {
         pauseBtn.onclick = () => {
-            togglePause(); // Ensure this function is in your game_engine.js
+            togglePause(); 
         };
     }
 

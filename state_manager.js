@@ -14,8 +14,8 @@ const gameState = {
         3: '#00d2ff', // Blue
         4: '#fff01f'  // Yellow
     },
-    totalTime: 180, 
-    turnTime: 15,
+    totalTime: 300 , 
+    turnTime: 20,
     timerInterval: null,
     activeAnimations: 0,
     bgm: new Audio('assets/BGM.wav'),
@@ -39,12 +39,12 @@ const gameState = {
     hasMovedThisTurn: false,
     activePowerUp: null, // Stores 'bomb', 'shield', etc., or null
     chainCount: 0,
-    
+    inactivePlayers: [],
     portals: [] 
 };
 // Configure the BGM
 gameState.bgm.loop = true;      // Makes the music restart automatically
-gameState.bgm.volume = 0.5;    // Lower volume (30%) so SFX can be heard
+gameState.bgm.volume = 0.5;    
 gameState.sounds.win.volume = 0.6;
 gameState.sounds.portal.volume = 1.5;
 gameState.sounds.swap.volume = 0.8;

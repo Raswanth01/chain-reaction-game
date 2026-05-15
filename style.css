@@ -264,13 +264,14 @@ header {
 
 /* --- 7. ANIMATIONS & HACKER EFFECTS --- */
 .ghost-dot {
-    position: fixed; 
-    width: 18px; 
-    height: 18px;
+    position: absolute; 
+    /* Match the .dot class sizing */
+    width: 40%; 
+    height: 40%;
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
-    /* Centers the ghost dot so it launches from the true center of the square */
+    /* Keeps the dot centered on its coordinates */
     transform: translate(-50%, -50%); 
     transition: all 0.3s linear;
 }

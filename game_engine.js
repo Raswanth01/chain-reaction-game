@@ -12,15 +12,20 @@ function startGame(mode) {
     } else {
         gameState.portals = [];
     }
+    const btn = document.getElementById('pause-btn');
+    if (btn) btn.innerText = "Pause";
 
     resetGame();
 }
 
 function resetGame() {
+    if (gameState.isPaused) {
+        togglePause();
+    }
     if (gameState.timerInterval) clearInterval(gameState.timerInterval);
     
-    gameState.totalTime = 180;
-    gameState.turnTime = 15;
+    gameState.totalTime = 300;
+    gameState.turnTime = 20;
     gameState.currentPlayer = 1;
     gameState.isGameOver = false;
     gameState.isPaused = false;
@@ -30,6 +35,7 @@ function resetGame() {
     gameState.hasMovedThisTurn = false; // Unlock the grid
     gameState.activePowerUp = null;     // Clear any active bomb targeting
     gameState.chainCount = 0;           // Reset the bomb reward counter
+    gameState.inactivePlayers = [];
     // Handle Hacker Mode transitions
     if (gameState.currentMode === 'hacker') {
         generateRandomPortals(); 
@@ -47,10 +53,10 @@ function resetGame() {
     if (log) log.innerHTML = "";
     initializeBoardData(); // Rebuilds the grid array
     updateVisuals();       // Clears dots from cells
-    updateTimerUI();
-    startTimers();
-    updateScoreUI();
-    updateTurnDisplay();  // Dynamically creates the score badges
+    updateTimerUI();       // Resets the timer display
+    startTimers();         // Starts the game clock and turn timer
+    updateScoreUI();       // Resets scores and inventory display
+    updateTurnDisplay();   // Dynamically creates the score badges
 }
 
 function togglePause() {
@@ -63,6 +69,7 @@ function togglePause() {
 
 function exitToMenu() {
     gameState.isPaused = true;
+    gameState.bgm.play();
     gameState.gameStarted = false;
     clearInterval(gameState.timerInterval);
     document.getElementById('game-screen').classList.add('hidden');
@@ -98,6 +105,7 @@ function generateRandomPortals() {
     ];
 
     if (gameState.totalPlayers > 2) {
+        // Pair 3 (Set C)
         const c1 = getUniquePos(used); used.push(c1);
         const c2 = getUniquePos(used); used.push(c2);
         gameState.portals.push(
@@ -106,6 +114,7 @@ function generateRandomPortals() {
         );
     }
     if(gameState.totalPlayers > 3) {
+        // Pair 4 (Set D)
         const d1 = getUniquePos(used); used.push(d1);
         const d2 = getUniquePos(used); used.push(d2);
         gameState.portals.push(
@@ -196,8 +205,6 @@ async function explode(r, c, attacker) {
     const cellData = gameState.board[r][c];
     const originCell = document.getElementById(`cell-${r}-${c}`);
     
-    // We do NOT subtract points here. 
-    // The dots are "exploding" out, but they still count as dots placed by the player.
     cellData.count = 0;
     cellData.owner = null;
 
@@ -271,11 +278,10 @@ function executeBomb(r, c) {
     // 2. Redraw the board so dots disappear
     updateVisuals();
 
-    // 3. Trigger the JS-only Animation
+    // 3. Trigger the animations on the affected cells
     area.forEach(([tr, tc]) => {
         const el = document.getElementById(`cell-${tr}-${tc}`);
         if (el) {
-            // This is the JS-only animation method
             el.animate([
                 // Keyframes
                 { backgroundColor: '#ffffff', boxShadow: '0 0 40px #ffffff', transform: 'scale(1.1)', zIndex: 100 },
@@ -298,24 +304,24 @@ function executeBomb(r, c) {
 } 
 
 function nextTurn() {
-    // Find the next player number (loops 1->2->3->4->1)
     let next = (gameState.currentPlayer % gameState.totalPlayers) + 1;
-    gameState.hasMovedThisTurn = false; // Reset for the new player
-    gameState.activePowerUp = null; // Clear any accidental selections
+    gameState.hasMovedThisTurn = false;
+    gameState.activePowerUp = null;
+    
     let attempts = 0;
-    // Skip any player who is currently wiped out
-    while (isPlayerWipedOut(next) && attempts < 4) {
+    // Skip if they are wiped out OR inactive
+    while ((isPlayerWipedOut(next) || gameState.inactivePlayers.includes(next)) && attempts < gameState.totalPlayers) {
         next = (next % gameState.totalPlayers) + 1;
         attempts++;
     }
 
     gameState.currentPlayer = next;
-    gameState.turnTime = 15; // Reset clock for the next person
+    gameState.turnTime = 20;
     
     updateScoreUI();
     updateTimerUI();
-    updateTurnDisplay(); // <-- ADD THIS LINE
-    checkWinner(); // Check if this turn skip resulted in a win
+    updateTurnDisplay();
+    checkWinner(); // Final check in case everyone but one is gone
 }
 
 function addPoint(player, amount = 1) {
@@ -328,37 +334,46 @@ function addPoint(player, amount = 1) {
 }
 
 function checkWinner() {
-    const survivors = [];
+    if (gameState.activeAnimations > 0) return;
 
-    // 1. Count how many players are NOT wiped out
+    let activePlayerIDs = [];
     for (let i = 1; i <= gameState.totalPlayers; i++) {
-        if (!isPlayerWipedOut(i)) {
-            survivors.push(i);
+        // A player is active ONLY if they aren't on the blacklist
+        if (!gameState.inactivePlayers.includes(i)) {
+            activePlayerIDs.push(i);
         }
     }
 
-    // 2. Check if the first round is over (prevents early wins)
-    const allStarted = Object.keys(gameState.firstMove)
-        .slice(0, gameState.totalPlayers)
-        .every(p => gameState.firstMove[p] === false);
+    // Check if anyone has actually played yet
+    const gameIsLive = Object.values(gameState.firstMove).some(v => v === false);
 
-    // 3. If only one survivor remains, they are the winner!
-    if (survivors.length === 1 && allStarted) {
-        const winnerId = survivors[0];
-        endGame(`PLAYER ${winnerId} IS THE LAST ONE STANDING!`);
+    // WIN CONDITION: If only 1 remains and the game is active
+    if (gameIsLive && activePlayerIDs.length === 1) {
+        const finalWinner = activePlayerIDs[0]; // Use the ID from our list
+        endGame(`PLAYER ${finalWinner} IS THE LAST ONE STANDING!`);
     }
 }
 
 function isPlayerWipedOut(playerIndex) {
-    // 1. A player cannot be wiped out before their first move is finished
+    // 1. Can't be wiped out before their first move
     if (gameState.firstMove[playerIndex]) return false;
 
-    // 2. Scan the board to see if they own any cells
-    const hasDots = gameState.board.some(row => 
+    // 2. Scan the board for any cells owned by this player
+    const hasCells = gameState.board.some(row => 
         row.some(cell => cell.owner === playerIndex)
     );
 
-    return !hasDots; // Returns true if they have no dots
+    // 3. THE FIX: Only mark as wiped if they have NO cells 
+    // AND there are NO dots flying in the air.
+    const isWiped = !hasCells && gameState.activeAnimations === 0;
+
+    // 4. Repurpose the existing blacklist
+    if (isWiped && !gameState.inactivePlayers.includes(playerIndex)) {
+        gameState.inactivePlayers.push(playerIndex);
+        logMove(`CRITICAL: Player ${playerIndex} has been WIPED OUT.`);
+    }
+
+    return isWiped;
 }
 
 // Optional helper for the victory message
@@ -377,57 +392,81 @@ function startTimers() {
         if (gameState.totalTime > 0) {
             gameState.totalTime--;
         } else {
-            // Repurposed: Find player with highest score if time hits 0
-            let topScore = -1;
-            let winner = 1;
+            // A. Find the highest score value currently on the board
+            const scoresArray = Object.values(gameState.scores).slice(0, gameState.totalPlayers);
+            const topScore = Math.max(...scoresArray);
+
+            // B. Identify ALL players who have that top score
+            let winners = [];
             for (let i = 1; i <= gameState.totalPlayers; i++) {
-                if (gameState.scores[i] > topScore) {
-                    topScore = gameState.scores[i];
-                    winner = i;
+                if (gameState.scores[i] === topScore) {
+                    winners.push(`P${i}`);
                 }
             }
-            endGame(`Time's up! Player ${winner} wins with ${topScore} dots!`);
+
+            // C. Determine if it's a Solo Win or a Draw
+            if (winners.length === 1) {
+                endGame(`TIME'S UP! ${winners[0]} wins with ${topScore} dots!`);
+            } else {
+                // Joins player IDs like "P1 & P2"
+                const drawList = winners.join(" & ");
+                endGame(`TIME'S UP! It's a DRAW between ${drawList} at ${topScore} dots!`);
+            }
             return;
         }
         
-        // 2. Turn Clock (The "You Lose" logic)
+        // 2. Turn Clock
         if (gameState.turnTime > 0) {
             gameState.turnTime--;
         } else {
-            // The current player timed out, so everyone else wins
-            const losers = gameState.currentPlayer;
-            const winners = [];
-            for (let i = 1; i <= gameState.totalPlayers; i++) {
-                if (i !== losers) winners.push(`P${i}`);
-            }
-            endGame(`Player ${losers} Timed Out! Winners: ${winners.join(', ')}`);
-            return;
-        }
+            const timedOutPlayer = gameState.currentPlayer;
 
+            // FIX: Only process if NOT already inactive to stop the spam
+            if (!gameState.inactivePlayers.includes(timedOutPlayer)) {
+                gameState.inactivePlayers.push(timedOutPlayer);
+                logMove(`SYSTEM: P${timedOutPlayer} TIMED OUT. Empire frozen.`);
+
+                gameState.firstMove[timedOutPlayer] = false; 
+                updateVisuals();
+                
+                // CRITICAL: Check for winner before trying to move to next person
+                checkWinner(); 
+
+                if (!gameState.isGameOver) {
+                    nextTurn(); 
+                }
+            }
+        }
         updateTimerUI();
     }, 1000);
 }
 
-
 function createFlyingDot(fromEl, toEl, player, portalExitEl = null) {
+    const grid = document.getElementById('grid');
     const dot = document.createElement('div');
     // NEW LOGIC (Supports all 4 players)
     dot.className = `ghost-dot p${player}-dot`;
+    const cellWidth = fromEl.offsetWidth;
+    const cellHeight = fromEl.offsetHeight;
     
-    const getPos = (el) => {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    const getRelativePos = (el) => {
+        return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 };
     };
 
-    const start = getPos(fromEl);
-    const target = getPos(toEl);
+    const start = getRelativePos(fromEl);
+    const target = getRelativePos(toEl);
 
-    // FIX: Add a very high zIndex directly here to be safe
+    
     Object.assign(dot.style, { 
+        // FIX: Set size in pixels to match 40% of the cell exactly
+        width: `${cellWidth * 0.4}px`, 
+        height: `${cellHeight * 0.4}px`,
         left: `${start.x}px`, 
         top: `${start.y}px`,
-        position: 'fixed',
-        zIndex: '10000' 
+        position: 'absolute',
+        zIndex: '10000',
+        margin: '0',
+        transform: 'translate(-50%, -50%)'
     });
     
     document.body.appendChild(dot);
@@ -475,6 +514,9 @@ function createFlyingDot(fromEl, toEl, player, portalExitEl = null) {
 function endGame(msg) {
     gameState.isGameOver = true;
     gameState.isPaused = true;
+    logMove(`STATUS: ${msg}`);
+    const pauseBtn = document.getElementById('pause-btn');
+    if (pauseBtn) pauseBtn.innerText = "Resume";
     clearInterval(gameState.timerInterval);
     gameState.bgm.pause();
     gameState.sounds.win.play();
@@ -484,7 +526,6 @@ function endGame(msg) {
     setTimeout(() => alert(msg), 500);
 }
 
-// game_engine.js
 function executeSwap(r, c) {
     const attacker = gameState.currentPlayer;
     const targetCell = gameState.board[r][c];
