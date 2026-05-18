@@ -1,5 +1,10 @@
 # ⛓️ CHAIN REACTOR: SYSTEM PROTOCOL 
 
+## 🎬 System Demonstration
+Click the image below to watch the full gameplay demo, including **Hacker Mode** portals and power-up mechanics:
+
+[![Chain Reactor Demo](https://img.youtube.com/vi/jkjMOwgtxCo/maxresdefault.jpg)](https://www.youtube.com/watch?v=jkjMOwgtxCo)
+
 ### ► CORE SYSTEM OBJECTIVE
 
 The grid is a $6 \times 12$ network of vulnerable nodes. Your mission is to infiltrate, occupy, and expand your signature across all sectors.
